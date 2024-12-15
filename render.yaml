@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    buildCommand: ""
+    startCommand: "npm run start"
+    envVars:
+      NEXT_PUBLIC_API_URL: https://backend-service.onrender.com # Backend'in Render'daki URL'si (otomatik atanır)
+    plan: free
+    disk:
+      enabled: false # Frontend için disk kullanımı gerekli değil
+    ports:
+      - 3000
+
+  - type: web
+    name: backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    buildCommand: ""
+    startCommand: "npm run start"
+    envVars:
+      DATABASE_URL: postgres://youruser:yourpass@db-service.onrender.com:5432/dictionary_db
+      PORT: 8080
+      NODE_ENV: development
+      OPENAI_API_KEY: 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
+    plan: free
+    disk:
+      enabled: false # Backend için disk kullanımı gerekli değil
+    ports:
+      - 8080
+
+  - type: database
+    name: db
+    databaseType: postgresql
+    plan: free
+    disk:
+      sizeGB: 1 # Ücretsiz planda 1GB disk alanı
+    envVars:
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: yourpass
+      POSTGRES_DB: dictionary_db
