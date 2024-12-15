@@ -3,7 +3,7 @@ services:
   - type: web
     name: frontend
     runtime: docker
-    repo: https://github.com/your-repo/frontend # Değiştirin
+    repo: https://github.com/fatihmutluu/latin-turkish-idct/frontend # Değiştirin
     rootDir: frontend
     dockerfilePath: Dockerfile
     envVars:
@@ -12,15 +12,14 @@ services:
     scaling:
       minInstances: 1
       maxInstances: 2
+      targetCPUPercent: 60 # CPU kullanımı %60'a ulaştığında ölçeklensin
     healthCheckPath: / # Sağlık kontrolü
-    buildCommand: yarn install
-    startCommand: yarn dev
 
   # Backend Service
   - type: web
     name: backend
     runtime: docker
-    repo: https://github.com/your-repo/backend # Değiştirin
+    repo: https://github.com/fatihmutluu/latin-turkish-idct/backend # Değiştirin
     rootDir: backend
     dockerfilePath: Dockerfile
     envVars:
@@ -37,9 +36,8 @@ services:
     scaling:
       minInstances: 1
       maxInstances: 2
+      targetMemoryPercent: 70 # Bellek kullanımı %70'e ulaştığında ölçeklensin
     healthCheckPath: /api/health # Sağlık kontrolü endpoint'i
-    buildCommand: yarn install
-    startCommand: yarn start
 
 databases:
   # PostgreSQL Database
