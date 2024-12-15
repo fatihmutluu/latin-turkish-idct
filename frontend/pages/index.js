@@ -108,22 +108,25 @@ export default function Home() {
       )}
 
       {!isLoading && translation && (
-        <div className="mt-8 bg-white shadow-lg rounded-lg p-6 w-full max-w-lg relative">
+        <div className="mt-8 bg-white shadow-lg rounded-lg p-6 w-full max-w-4xl relative">
           <button 
             className="absolute top-2 right-2 hover:bg-red-100 text-red-500 rounded-full p-2 focus:outline-none"
             onClick={() => handleDelete(translation.id)}
           >
             🗑️
           </button>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            {translation.source_word}
-          </h2>
-          <p className="text-lg text-gray-700">
-            <span className="font-medium text-gray-800">Çeviri: </span>
-            {translation.direct_translation}
-          </p>
-          <div className="mt-3 text-gray-600">
-            <span className="font-medium text-gray-800">Açıklama: </span>
+          <div className="flex items-center gap-3 mb-4 max-w-md mx-auto">
+            <h2 className="text-2xl font-bold text-black">
+              {translation.source_word}
+            </h2>
+            <h3 className="text-lg font-bold text-gray-500">
+              {translation.source_language} - {translation.target_language}
+            </h3>
+            <h2 className="text-2xl font-bold text-black">
+              {translation.direct_translation}
+            </h2>
+          </div>
+          <div className="text-lg mt-3 text-black">
             {translation.explanation || "Açıklama bulunmamaktadır"}
           </div>
         </div>

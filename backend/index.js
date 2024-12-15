@@ -71,7 +71,7 @@ app.post('/translate', async (req, res) => {
     // Check existing translation in database
     const existing = await pool.query(
       `SELECT * FROM words 
-       WHERE source_word = $1 
+       WHERE LOWER(source_word) = LOWER($1) 
        AND source_language = $2 
        AND target_language = $3 
        LIMIT 1`,
@@ -85,6 +85,7 @@ app.post('/translate', async (req, res) => {
 
     // databse dont have the translation, get it from logeion
     let logeionUrl = "https://logeion.uchicago.edu/" + word;
+    let systemMsg = "Sen Latince - Türkçe çeviri yapan bir sistemin backend kısmındaki botsun";
     let prompt = logeionUrl + "\n\n" +
     "Bu sayfadaki Latince kelimeyi bana Türkçeye çevirmen lazım. " +
     "Eğer kelime yanlışsa doğru kelimeyi tahmin etmeye çalış yakın olarak ya da yazım yanlışını düzelt. " +
@@ -94,7 +95,7 @@ app.post('/translate', async (req, res) => {
     "  \"turkishWord\":\"" + "Yanlış Kelime" + "\"," + "\n" +
     "  \"explanation\":\"" + "Kelime Bulunamadı" + "\"" + "\n" +
     "} dönebilirsin" + "\n\n" +
-    "Direkt kelime çevirisi (kelimenin Latince - Türkçe direkt çevirisi) ve altına da açıklama yazısı (sitede açıklama kısmında ne var. örnek cümle kullanım alanı vs vs). " +
+    "Direkt kelime çevirisi (kelimenin Latince - Türkçe direkt çevirisi) ve altına da açıklama yazısı (sitede açıklama kısmında ne var. örnek cümle kullanım alanı vs vs). Kelime Birden fazla anlama geliyosa bunu açıklama kısmının içerisinde belirt" +
     "Seni bir bota bağladım dolayısıyla cevabımda sadece JSON formatında istediğim bilgileri ver, başka bir yazı yazma ve ```json şeklinde işaratleme text olarak json ver. İşte senden istediğim dönüş formatı: " + "\n\n" +
     "{" + "\n" +
     "  \"latinWord\":\"" + word + "\"," + "\n" +
@@ -105,7 +106,10 @@ app.post('/translate', async (req, res) => {
 
     const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        { role: "system", content: systemMsg},
+        { role: "user", content: prompt }
+      ],
     });
 
     let completion = response.choices[0].message.content.trim();
@@ -122,7 +126,7 @@ app.post('/translate', async (req, res) => {
     const inserted = await pool.query(
       `INSERT INTO words 
        (source_language, target_language, source_word, direct_translation, explanation) 
-       VALUES ($1, $2, $3, $4, $5) 
+       VALUES ($1, $2, INITCAP(LOWER($3)), INITCAP(LOWER($4)), $5) 
        RETURNING *`,
       [sourceLang, targetLang, latinWord, turkishWord, explanation]
     )

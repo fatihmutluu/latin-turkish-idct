@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   frontend:
     build: 
@@ -27,7 +26,7 @@ services:
       - DATABASE_URL=postgresql://youruser:yourpass@db:5432/dictionary_db
       - PORT=8080
       - NODE_ENV=development
-      - OPENAI_API_KEY=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
+      - OPENAI_API_KEY=
     depends_on:
       - db
     volumes:
