@@ -49,21 +49,22 @@ services:
     buildCommand: yarn install
     startCommand: yarn start
 
+# Database Service
+databases:
   # PostgreSQL Database
-  - type: postgres
-    name: dictionary-db
+  - name: dictionary-db
     databaseName: dictionary_db
-    user: youruser
-    plan: free
-    diskSizeGB: 10
-    ipAllowList: [] # Yalnızca özel bağlantılara izin ver
+    user: youruser # Veritabanı kullanıcı adı
+    plan: free # Ücretsiz plan
+    diskSizeGB: 10 # Disk boyutu
+    ipAllowList: [] # Sadece özel bağlantılara izin ver
     envVars:
       - key: POSTGRES_USER
-        value: youruser
+        value: youruser # Docker Compose'dan alınmış değer
       - key: POSTGRES_PASSWORD
-        value: yourpass
+        sync: false # Hassas bilgiyi Render arayüzünde tanımlayın
       - key: POSTGRES_DB
-        value: dictionary_db
+        value: dictionary_db # Docker Compose'daki `POSTGRES_DB` değerine eşdeğer
 
 networks:
   app_network: # Render'da bu yapılandırma otomatik yapılır
