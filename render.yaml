@@ -1,42 +1,78 @@
+#################################################################
+# Render YAML Blueprint                                         #
+#################################################################
+
 services:
+  # Frontend Service
   - type: web
     name: frontend
-    env: docker
-    dockerfilePath: ./frontend/Dockerfile
-    buildCommand: ""
-    startCommand: "npm run start"
+    runtime: docker
+    repo: https://github.com/latin-turkish-idct/frontend 
+    rootDir: frontend
+    dockerfilePath: Dockerfile
     envVars:
-      NEXT_PUBLIC_API_URL: https://backend-service.onrender.com # Backend'in Render'daki URL'si (otomatik atanır)
-    plan: free
-    disk:
-      enabled: false # Frontend için disk kullanımı gerekli değil
-    ports:
-      - 3000
+      - key: NEXT_PUBLIC_API_URL
+        value: http://backend:8080
+    scaling:
+      minInstances: 1
+      maxInstances: 2
+    healthCheckPath: / 
+    buildCommand: yarn install
+    startCommand: yarn dev
+    disk: # Opsiyonel, build önbelleği için kullanılabilir
+      name: frontend-cache
+      mountPath: /cache
+      sizeGB: 5
 
+  # Backend Service
   - type: web
     name: backend
-    env: docker
-    dockerfilePath: ./backend/Dockerfile
-    buildCommand: ""
-    startCommand: "npm run start"
+    runtime: docker
+    repo: https://github.com/latin-turkish-idct/backend 
+    rootDir: backend
+    dockerfilePath: Dockerfile
     envVars:
-      DATABASE_URL: postgres://youruser:yourpass@db-service.onrender.com:5432/dictionary_db
-      PORT: 8080
-      NODE_ENV: development
-      OPENAI_API_KEY: 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
-    plan: free
-    disk:
-      enabled: false # Backend için disk kullanımı gerekli değil
-    ports:
-      - 8080
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dictionary-db
+          property: connectionString
+      - key: PORT
+        value: 8080
+      - key: NODE_ENV
+        value: development
+      - key: OPENAI_API_KEY
+        value: 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
+    scaling:
+      minInstances: 1
+      maxInstances: 2
+    healthCheckPath: /api/health # Sağlık kontrolü endpoint'i
+    buildCommand: yarn install
+    startCommand: yarn start
 
-  - type: database
-    name: db
-    databaseType: postgresql
+  # PostgreSQL Database
+  - type: postgres
+    name: dictionary-db
+    databaseName: dictionary_db
+    user: youruser
     plan: free
-    disk:
-      sizeGB: 1 # Ücretsiz planda 1GB disk alanı
+    diskSizeGB: 10
+    ipAllowList: [] # Yalnızca özel bağlantılara izin ver
     envVars:
-      POSTGRES_USER: youruser
-      POSTGRES_PASSWORD: yourpass
-      POSTGRES_DB: dictionary_db
+      - key: POSTGRES_USER
+        value: youruser
+      - key: POSTGRES_PASSWORD
+        value: yourpass
+      - key: POSTGRES_DB
+        value: dictionary_db
+
+networks:
+  app_network: # Render'da bu yapılandırma otomatik yapılır
+    description: "Application network for frontend, backend, and database"
+
+envVarGroups:
+  - name: shared-variables
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: PORT
+        value: 8080

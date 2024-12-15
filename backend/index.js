@@ -156,9 +156,13 @@ app.delete('/delete/:id', async (req, res) => {
   }
 })
 
+app.get("/api/health", (req, res) => {
+  res.send("Backend is healthy");
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
-  res.send('Dictionary Backend is Running')
+  res.status(200).send('Dictionary Backend is Running')
 })
 
 const port = process.env.PORT || 8080
