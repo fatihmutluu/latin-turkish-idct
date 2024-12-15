@@ -1,13 +1,9 @@
-#################################################################
-# Render YAML Blueprint                                         #
-#################################################################
-
 services:
   # Frontend Service
   - type: web
     name: frontend
     runtime: docker
-    repo: https://github.com/latin-turkish-idct/frontend 
+    repo: https://github.com/your-repo/frontend # Değiştirin
     rootDir: frontend
     dockerfilePath: Dockerfile
     envVars:
@@ -16,19 +12,15 @@ services:
     scaling:
       minInstances: 1
       maxInstances: 2
-    healthCheckPath: / 
+    healthCheckPath: / # Sağlık kontrolü
     buildCommand: yarn install
     startCommand: yarn dev
-    disk: # Opsiyonel, build önbelleği için kullanılabilir
-      name: frontend-cache
-      mountPath: /cache
-      sizeGB: 5
 
   # Backend Service
   - type: web
     name: backend
     runtime: docker
-    repo: https://github.com/latin-turkish-idct/backend 
+    repo: https://github.com/your-repo/backend # Değiştirin
     rootDir: backend
     dockerfilePath: Dockerfile
     envVars:
@@ -41,7 +33,7 @@ services:
       - key: NODE_ENV
         value: development
       - key: OPENAI_API_KEY
-        value: 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
+        sync: false # Hassas bilgiyi Render'da tanımlayın
     scaling:
       minInstances: 1
       maxInstances: 2
@@ -49,31 +41,11 @@ services:
     buildCommand: yarn install
     startCommand: yarn start
 
-# Database Service
 databases:
   # PostgreSQL Database
   - name: dictionary-db
     databaseName: dictionary_db
-    user: youruser # Veritabanı kullanıcı adı
-    plan: free # Ücretsiz plan
-    diskSizeGB: 10 # Disk boyutu
+    user: youruser
+    plan: free
+    diskSizeGB: 10
     ipAllowList: [] # Sadece özel bağlantılara izin ver
-    envVars:
-      - key: POSTGRES_USER
-        value: youruser # Docker Compose'dan alınmış değer
-      - key: POSTGRES_PASSWORD
-        sync: false # Hassas bilgiyi Render arayüzünde tanımlayın
-      - key: POSTGRES_DB
-        value: dictionary_db # Docker Compose'daki `POSTGRES_DB` değerine eşdeğer
-
-networks:
-  app_network: # Render'da bu yapılandırma otomatik yapılır
-    description: "Application network for frontend, backend, and database"
-
-envVarGroups:
-  - name: shared-variables
-    envVars:
-      - key: NODE_ENV
-        value: development
-      - key: PORT
-        value: 8080
